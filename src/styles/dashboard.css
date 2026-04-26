@@ -63,7 +63,7 @@
 }
 
 .complete-btn {
-  background-color: var(--black); /* Contrast look */
+  background-color: var(--black);
   color: var(--white);
   border: none;
   padding: 12px;
@@ -98,13 +98,47 @@
 .logout-btn {
   background: transparent;
   border: 1px solid var(--border);
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 8px;
   font-weight: 600;
   color: var(--dark-grey);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
   border-color: var(--primary-red);
+  color: var(--primary-red);
+  background-color: var(--error-bg);
+}
+.habit-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.habit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--grey);
+}
+
+.action-btn:hover {
+  background: var(--light-grey);
+}
+
+.edit-btn:hover {
+  color: var(--black);
+}
+.delete-btn:hover {
   color: var(--primary-red);
 }

@@ -55,6 +55,19 @@
   flex-direction: column;
   gap: 20px;
 }
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary-red);
+}
 
 .modal-actions {
   display: flex;

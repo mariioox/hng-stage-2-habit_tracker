@@ -1,16 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@/styles/modal.css";
 
 interface HabitModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
+  initialValue?: string;
+  mode: "create" | "edit";
 }
 
-export const HabitModal = ({ isOpen, onClose, onSave }: HabitModalProps) => {
-  const [habitName, setHabitName] = useState("");
+export const HabitModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  initialValue = "",
+  mode,
+}: HabitModalProps) => {
+  const [habitName, setHabitName] = useState(initialValue);
+
+  // Sync the input field when the modal opens for editing
+  useEffect(() => {
+    if (isOpen) setHabitName(initialValue);
+  }, [isOpen, initialValue]);
 
   if (!isOpen) return null;
 
@@ -18,7 +31,7 @@ export const HabitModal = ({ isOpen, onClose, onSave }: HabitModalProps) => {
     e.preventDefault();
     if (habitName.trim()) {
       onSave(habitName.trim());
-      setHabitName(""); // Reset
+      setHabitName("");
       onClose();
     }
   };
@@ -31,16 +44,15 @@ export const HabitModal = ({ isOpen, onClose, onSave }: HabitModalProps) => {
         </button>
 
         <div className="modal-header">
-          <h2>New Habit</h2>
+          <h2>{mode === "create" ? "New Habit" : "Edit Habit"}</h2>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="habitName">What habit are you starting?</label>
+            <label htmlFor="habitName">What&apos;s your new habit?</label>
             <input
               id="habitName"
               type="text"
-              placeholder="e.g. 30 mins Reading"
               value={habitName}
               onChange={(e) => setHabitName(e.target.value)}
               autoFocus
@@ -53,7 +65,7 @@ export const HabitModal = ({ isOpen, onClose, onSave }: HabitModalProps) => {
               Cancel
             </button>
             <button type="submit" className="btn-primary">
-              Create Habit
+              {mode === "create" ? "Create" : "Save Changes"}
             </button>
           </div>
         </form>
