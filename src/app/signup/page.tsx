@@ -2,23 +2,39 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthForm } from "@/components/auth/AuthForm";
-import { AuthCredentials } from "@/types/auth";
-import "@/styles/auth.css";
+import { AuthForm } from "@/components/auth/AuthForm"; // Your existing form component
+import { STORAGE_KEYS } from "@/lib/constants";
+import { User, Session, AuthCredentials } from "@/types/auth";
 
 export default function SignupPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSignup = (credentials: AuthCredentials) => {
-    try {
-      // Per technical requirement: Persistence must remain local
-      localStorage.setItem("habit_user", JSON.stringify(credentials));
-      router.push("/login");
-    } catch (err) {
-      console.log("Error saving user details:", err);
-      setError("Failed to save account details.");
+    const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS);
+    const users: User[] = usersRaw ? JSON.parse(usersRaw) : [];
+
+    // REQUIREMENT: Duplicate email signup must be rejected [cite: 213]
+    if (users.find((u) => u.email === credentials.email)) {
+      setError("User already exists"); // Exact error message required [cite: 214]
+      return;
     }
+
+    const newUser: User = {
+      id: crypto.randomUUID(),
+      email: credentials.email,
+      password: credentials.password,
+      createdAt: new Date().toISOString(),
+    };
+
+    // REQUIREMENT: Save user and session to local storage [cite: 55, 56]
+    const updatedUsers = [...users, newUser];
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+
+    const session: Session = { userId: newUser.id, email: newUser.email };
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+
+    router.push("/dashboard");
   };
 
   return <AuthForm mode="signup" onSubmit={handleSignup} error={error} />;

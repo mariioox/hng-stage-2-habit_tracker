@@ -21,13 +21,17 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           {mode === "login" ? "Login to Habit Tracker" : "Create your account"}
         </h1>
 
-        {error && <div className="auth-error">{error}</div>}
+        {error && (
+          <div data-testid="auth-error-message" className="auth-error">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
-              id="email"
+              data-testid="auth-login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -39,7 +43,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              id="password"
+              data-testid="auth-login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -48,7 +52,11 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
             />
           </div>
 
-          <button type="submit" className="auth-button">
+          <button
+            type="submit"
+            className="auth-button"
+            data-testid="auth-login-submit"
+          >
             {mode === "login" ? "Sign In" : "Sign Up"}
           </button>
         </form>

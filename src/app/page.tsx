@@ -1,28 +1,42 @@
-import Link from "next/link";
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { STORAGE_KEYS } from "@/lib/constants";
+
+export default function RootPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // REQUIREMENT: Visible duration between 800ms and 2000ms [cite: 51]
+    const timer = setTimeout(() => {
+      const sessionRaw = localStorage.getItem(STORAGE_KEYS.SESSION);
+
+      if (sessionRaw) {
+        router.push("/dashboard"); // Redirect if session exists [cite: 49]
+      } else {
+        router.push("/login"); // Redirect if no session [cite: 50]
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
-    <main className="auth-container">
-      <div className="auth-form" style={{ textAlign: "center" }}>
-        <h1 className="auth-title">Habit Tracker</h1>
-        <p style={{ marginBottom: "2rem", color: "#666" }}>
-          Master your routines. Build your streaks.
-        </p>
-        <Link
-          href="/signup"
-          className="auth-button"
-          style={{ display: "block", textDecoration: "none" }}
-        >
-          Get Started... what does that mean, why do i have to think about it
-          and how do i fix it?
-        </Link>
-        <Link
-          href="/login"
-          style={{ display: "block", marginTop: "1rem", color: "#6366f1" }}
-        >
-          Already have an account? Login
-        </Link>
-      </div>
-    </main>
+    <div
+      data-testid="splash-screen"
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1rem",
+      }}
+    >
+      {/* REQUIREMENT: Show app name 'Habit Tracker' [cite: 159] */}
+      <h1 style={{ fontSize: "2.5rem", fontWeight: "bold" }}>Habit Tracker</h1>
+      <div className="spinner">⌛ Loading...</div>
+    </div>
   );
 }

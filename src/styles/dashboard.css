@@ -142,3 +142,15 @@
 .delete-btn:hover {
   color: var(--primary-red);
 }
+.complete-btn.completed {
+  background-color: var(--light-grey);
+  color: var(--grey);
+  cursor: default;
+  /* Optional: make it look "pressed" */
+  border: 1px solid var(--border);
+}
+
+.complete-btn.completed:hover {
+  background-color: var(--light-grey);
+  opacity: 1;
+}

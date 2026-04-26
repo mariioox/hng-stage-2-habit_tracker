@@ -98,3 +98,8 @@
 .btn-primary:hover {
   background: var(--primary-red-hover);
 }
+.error-message {
+  margin-top: 8px;
+  color: var(--primary-red);
+  font-size: 0.875rem;
+}

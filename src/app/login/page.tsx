@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthForm } from "@/components/auth/AuthForm";
-import { AuthCredentials } from "@/types/auth";
+import { AuthCredentials, User, Session } from "@/types/auth";
+import { STORAGE_KEYS } from "@/lib/constants";
 import "@/styles/auth.css";
 
 export default function LoginPage() {
@@ -11,20 +12,20 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = (credentials: AuthCredentials) => {
-    const storedUserRaw = localStorage.getItem("habit_user");
+    // 1. Get users from the CORRECT key
+    const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS);
+    const users: User[] = usersRaw ? JSON.parse(usersRaw) : [];
 
-    if (!storedUserRaw) {
-      setError("No user found. Please sign up first.");
-      return;
-    }
+    // 2. Find user
+    const user = users.find(
+      (u) =>
+        u.email === credentials.email && u.password === credentials.password,
+    );
 
-    const storedUser = JSON.parse(storedUserRaw);
-
-    if (
-      storedUser.email === credentials.email &&
-      storedUser.password === credentials.password
-    ) {
-      localStorage.setItem("isLoggedIn", "true");
+    if (user) {
+      // 3. Store Session as an OBJECT (Requirement 8.2)
+      const session: Session = { userId: user.id, email: user.email };
+      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
       router.push("/dashboard");
     } else {
       setError("Invalid email or password");
