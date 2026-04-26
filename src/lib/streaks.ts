@@ -1,18 +1,12 @@
-/**
- * Calculates the current streak based on consecutive calendar days.
- * Rules:
- * - Remove duplicates and sort before logic [cite: 138-139]
- * - If today is not completed, streak is 0 [cite: 140]
- * - If today is completed, count backwards consecutively 
- */
+/* Calculates the current streak based on consecutive calendar days. */
 export function calculateCurrentStreak(completions: string[], today?: string): number {
   const todayStr = today || new Date().toISOString().split('T')[0];
 
   if (completions.length === 0 || !completions.includes(todayStr)) {
-    return 0; // Rule: today not completed => 0 [cite: 140, 143]
-  }
+    return 0; // streak = 0 if today not completed
+}
 
-  // Deduplicate and sort descending (newest to oldest) [cite: 138-139]
+  // Deduplicate and sort descending (newest to oldest)
   const sortedDates = Array.from(new Set(completions)).sort((a, b) => 
     new Date(b).getTime() - new Date(a).getTime()
   );
@@ -29,7 +23,7 @@ export function calculateCurrentStreak(completions: string[], today?: string): n
       // Move check date back exactly one day
       currentCheckDate.setDate(currentCheckDate.getDate() - 1);
     } else {
-      // Gap found, streak broken [cite: 141, 324]
+      // Gap found, streak broken
       break;
     }
   }

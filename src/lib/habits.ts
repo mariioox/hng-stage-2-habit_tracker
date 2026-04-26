@@ -7,7 +7,7 @@ export function toggleHabitCompletion(habit: Habit, date: string): Habit {
     ? habit.completions.filter((d) => d !== date)
     : [...habit.completions, date];
 
-  // Return a new object to ensure immutability [cite: 154]
+  // Return a new object to ensure immutability
   return {
     ...habit,
     completions: Array.from(new Set(newCompletions)),
