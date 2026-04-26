@@ -1,11 +1,36 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { HabitModal } from "@/components/dashboard/HabitModal";
+import { Habit } from "@/types/habit";
 import "@/styles/dashboard.css";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [habits, setHabits] = useState<Habit[]>([]);
+
+  // Load habits from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("habits");
+    if (saved) setHabits(JSON.parse(saved));
+  }, []);
+
+  const handleSaveHabit = (name: string) => {
+    const newHabit: Habit = {
+      id: crypto.randomUUID(),
+      name,
+      createdAt: new Date().toISOString(),
+      completedDates: [],
+      currentStreak: 0,
+    };
+
+    const updatedHabits = [...habits, newHabit];
+    setHabits(updatedHabits);
+    localStorage.setItem("habits", JSON.stringify(updatedHabits));
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -16,44 +41,38 @@ export default function DashboardPage() {
     <AuthGuard>
       <div className="dashboard-container">
         <header className="header">
-          <div>
-            <h1>Dashboard</h1>
-            <p style={{ color: "var(--text-muted)", marginTop: "4px" }}>
-              Welcome back! Track your progress.
-            </p>
-          </div>
+          <h1>Habits</h1>
           <button onClick={handleLogout} className="logout-btn">
             Sign Out
           </button>
         </header>
 
         <main className="habit-grid">
-          {/* New Habit Trigger */}
           <div
-            className="habit-card"
-            style={{
-              borderStyle: "dashed",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
+            className="habit-card add-habit-card"
+            onClick={() => setIsModalOpen(true)}
           >
-            <span style={{ fontSize: "1.5rem", color: "var(--primary-red)" }}>
-              +
-            </span>
-            <span style={{ fontWeight: "600" }}>New Habit</span>
+            <span style={{ fontSize: "2rem" }}>+</span>
+            <p>New Habit</p>
           </div>
 
-          {/* Habit Item */}
-          <div className="habit-card">
-            <h3 className="habit-name">Morning Meditation</h3>
-            <div className="streak-info">
-              <span>🔥</span>
-              <span>4 Day Streak</span>
+          {habits.map((habit) => (
+            <div key={habit.id} className="habit-card">
+              <h3 className="habit-name">{habit.name}</h3>
+              <div className="streak-info">
+                <span>🔥</span>
+                <span>{habit.currentStreak} Day Streak</span>
+              </div>
+              <button className="complete-btn">Complete</button>
             </div>
-            <button className="complete-btn">Complete for Today</button>
-          </div>
+          ))}
         </main>
+
+        <HabitModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveHabit}
+        />
       </div>
     </AuthGuard>
   );
