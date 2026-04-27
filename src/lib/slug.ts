@@ -3,5 +3,6 @@ export function getHabitSlug(name: string): string {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, '-')           // Replace spaces with single hyphen
-    .replace(/[^a-z0-9-]/g, '');    // Remove non-alphanumeric except hyphens
+    .replace(/[^a-z0-9-]/g, '')    // Remove non-alphanumeric except hyphens
+    .replace(/^-+|-+$/g, '');      // NEW: Remove hyphens from start or end
 }
