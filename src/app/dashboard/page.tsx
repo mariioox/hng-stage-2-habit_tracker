@@ -7,7 +7,6 @@ import { Habit } from "@/types/habit";
 import { Session } from "@/types/auth";
 import AuthGuard from "@/components/auth/AuthGuard";
 
-// REQUIREMENT: Use specific utility functions for logic
 import { toggleHabitCompletion } from "@/lib/habits";
 import { calculateCurrentStreak } from "@/lib/streaks";
 import { STORAGE_KEYS } from "@/lib/constants";
@@ -21,12 +20,16 @@ export default function DashboardPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Get current date string for consistency
+  // Track which habit is currently showing the confirm delete buttons
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(
+    null,
+  );
+
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    // REQUIREMENT: Persist session from required key
     const sessionRaw = localStorage.getItem(STORAGE_KEYS.SESSION);
     if (!sessionRaw) {
       router.push("/login");
@@ -35,7 +38,6 @@ export default function DashboardPage() {
     const currentSession: Session = JSON.parse(sessionRaw);
     setSession(currentSession);
 
-    // REQUIREMENT: Persist habits and filter by userId
     const saved = localStorage.getItem(STORAGE_KEYS.HABITS);
     if (saved) {
       const allHabits: Habit[] = JSON.parse(saved);
@@ -44,17 +46,23 @@ export default function DashboardPage() {
       );
       setHabits(userHabits);
     }
+    setIsInitialLoad(false);
   }, [router]);
+
+  if (isInitialLoad) return <div data-testid="loading">Loading...</div>;
 
   const saveToLocal = (newHabits: Habit[]) => {
     setHabits(newHabits);
+
+    // Safety check: ensure we use the current session ID even if state is pending
+    const userId = session?.userId;
+    if (!userId) return;
+
     const saved = localStorage.getItem(STORAGE_KEYS.HABITS);
     const allHabits: Habit[] = saved ? JSON.parse(saved) : [];
 
-    // Maintain other users' data in local storage while updating current user
-    const otherUsersHabits = allHabits.filter(
-      (h) => h.userId !== session?.userId,
-    );
+    const otherUsersHabits = allHabits.filter((h) => h.userId !== userId);
+
     localStorage.setItem(
       STORAGE_KEYS.HABITS,
       JSON.stringify([...otherUsersHabits, ...newHabits]),
@@ -75,7 +83,6 @@ export default function DashboardPage() {
       );
       saveToLocal(updated);
     } else {
-      // REQUIREMENT: Habit object must match the required contract
       const newHabit: Habit = {
         id: crypto.randomUUID(),
         userId: session.userId,
@@ -88,10 +95,10 @@ export default function DashboardPage() {
       saveToLocal([...habits, newHabit]);
     }
     setEditingHabit(null);
+    setIsModalOpen(false);
   };
 
   const handleToggleComplete = (habit: Habit) => {
-    // REQUIREMENT: Use required toggle logic
     const updatedHabit = toggleHabitCompletion(habit, todayStr);
     const updatedHabits = habits.map((h) =>
       h.id === habit.id ? updatedHabit : h,
@@ -100,10 +107,9 @@ export default function DashboardPage() {
   };
 
   const deleteHabit = (id: string) => {
-    if (confirm("Are you sure you want to delete this habit?")) {
-      const filtered = habits.filter((h) => h.id !== id);
-      saveToLocal(filtered);
-    }
+    const filtered = habits.filter((h) => h.id !== id);
+    saveToLocal(filtered);
+    setConfirmingDeleteId(null);
   };
 
   return (
@@ -112,24 +118,30 @@ export default function DashboardPage() {
         <header className="header">
           <div>
             <h1>Dashboard</h1>
-            <p style={{ color: "var(--grey)", fontSize: "0.9rem" }}>
+            <p
+              style={{
+                color: "var(--grey)",
+                fontSize: "0.9rem",
+                marginTop: "5px",
+              }}
+            >
               Logged in as {session?.email}
             </p>
           </div>
           <button
             onClick={handleLogout}
             className="logout-btn"
-            data-testid="nav-logout"
+            data-testid="auth-logout-button"
           >
             Sign Out
           </button>
         </header>
 
         <main className="habit-grid">
-          {/* REQUIREMENT: Specific Test ID for Add Button */}
+          {/* SECTION 10 CONTRACT: create-habit-button */}
           <div
             className="habit-card add-habit-card"
-            data-testid="habit-add-button"
+            data-testid="create-habit-button"
             onClick={() => {
               setEditingHabit(null);
               setIsModalOpen(true);
@@ -139,65 +151,99 @@ export default function DashboardPage() {
             <p>New Habit</p>
           </div>
 
-          {habits.map((habit) => {
-            const slug = getHabitSlug(habit.name);
-            const isDoneToday = habit.completions.includes(todayStr);
+          {/* SECTION 10 CONTRACT: empty-state rendering logic */}
+          {habits.length === 0 ? (
+            <div data-testid="empty-state" className="empty-state-container">
+              <p>No habits yet. Start by creating one!</p>
+            </div>
+          ) : (
+            habits.map((habit) => {
+              const slug = getHabitSlug(habit.name);
+              const isDoneToday = habit.completions.includes(todayStr);
+              const currentStreak = calculateCurrentStreak(
+                habit.completions,
+                todayStr,
+              );
 
-            // REQUIREMENT: Streak must be calculated dynamically
-            const currentStreak = calculateCurrentStreak(
-              habit.completions,
-              todayStr,
-            );
-
-            return (
-              <div
-                key={habit.id}
-                className="habit-card"
-                data-testid={`habit-card-${slug}`}
-              >
-                <div className="habit-card-header">
-                  <h3 className="habit-name" data-testid="habit-card-name">
-                    {habit.name}
-                  </h3>
-                  <div className="habit-actions">
-                    <button
-                      className="action-btn"
-                      data-testid={`habit-edit-${slug}`}
-                      onClick={() => {
-                        setEditingHabit(habit);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      ✎
-                    </button>
-                    <button
-                      className="action-btn"
-                      data-testid={`habit-delete-${slug}`}
-                      onClick={() => deleteHabit(habit.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-
-                <div className="streak-info">
-                  <span>🔥</span>
-                  {/* REQUIREMENT: Specific Test ID for count */}
-                  <span data-testid="habit-streak-count">
-                    {currentStreak} Day Streak
-                  </span>
-                </div>
-
-                <button
-                  data-testid={`habit-complete-button-${slug}`}
-                  className={`complete-btn ${isDoneToday ? "completed" : ""}`}
-                  onClick={() => handleToggleComplete(habit)}
+              return (
+                <div
+                  key={habit.id}
+                  className="habit-card"
+                  data-testid={`habit-card-${slug}`}
                 >
-                  {isDoneToday ? "Completed" : "Mark as Done"}
-                </button>
-              </div>
-            );
-          })}
+                  <div className="habit-card-header">
+                    <div className="habit-info-wrapper">
+                      <h3 className="habit-name" data-testid="habit-card-name">
+                        {habit.name}
+                      </h3>
+                      {habit.description && (
+                        <p
+                          className="habit-description"
+                          data-testid="habit-card-description"
+                        >
+                          {habit.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="habit-actions">
+                      <button
+                        className="action-btn"
+                        data-testid={`habit-edit-${slug}`}
+                        onClick={() => {
+                          setEditingHabit(habit);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        ✎
+                      </button>
+
+                      {confirmingDeleteId !== habit.id ? (
+                        <button
+                          className="action-btn"
+                          data-testid={`habit-delete-${slug}`}
+                          onClick={() => setConfirmingDeleteId(habit.id)}
+                        >
+                          🗑️
+                        </button>
+                      ) : (
+                        <div className="confirm-actions">
+                          <button
+                            className="btn-danger-small"
+                            data-testid="confirm-delete-button"
+                            onClick={() => deleteHabit(habit.id)}
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            className="action-btn"
+                            onClick={() => setConfirmingDeleteId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="streak-info">
+                    <span>🔥</span>
+                    <span data-testid={`habit-streak-${slug}`}>
+                      {currentStreak} Day Streak
+                    </span>
+                  </div>
+
+                  <button
+                    data-testid={`habit-complete-${slug}`}
+                    className={`complete-btn ${isDoneToday ? "completed" : ""}`}
+                    onClick={() => handleToggleComplete(habit)}
+                  >
+                    {isDoneToday ? "Completed" : "Mark as Done"}
+                  </button>
+                </div>
+              );
+            })
+          )}
         </main>
 
         <HabitModal

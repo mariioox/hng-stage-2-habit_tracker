@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test:unit": "vitest run --coverage",
-    "test:integration": "vitest run",
+    "test:integration": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run src/tests/integration",
     "test:e2e": "playwright test",
     "test": "npm run test:unit && npm run test:integration && npm run test:e2e"
   },

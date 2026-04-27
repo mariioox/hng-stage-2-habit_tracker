@@ -8,14 +8,13 @@ export default function RootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // REQUIREMENT: Visible duration between 800ms and 2000ms [cite: 51]
     const timer = setTimeout(() => {
       const sessionRaw = localStorage.getItem(STORAGE_KEYS.SESSION);
 
       if (sessionRaw) {
-        router.push("/dashboard"); // Redirect if session exists [cite: 49]
+        router.push("/dashboard");
       } else {
-        router.push("/login"); // Redirect if no session [cite: 50]
+        router.push("/login");
       }
     }, 1000);
 
@@ -34,7 +33,6 @@ export default function RootPage() {
         gap: "1rem",
       }}
     >
-      {/* REQUIREMENT: Show app name 'Habit Tracker' [cite: 159] */}
       <h1 style={{ fontSize: "2.5rem", fontWeight: "bold" }}>Habit Tracker</h1>
       <div className="spinner">⌛ Loading...</div>
     </div>

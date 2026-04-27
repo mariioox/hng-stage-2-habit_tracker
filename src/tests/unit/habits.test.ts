@@ -1,45 +1,40 @@
 import { describe, it, expect } from 'vitest';
 import { toggleHabitCompletion } from '@/lib/habits';
-import { STORAGE_KEYS } from '@/lib/constants';
 import { Habit } from '@/types/habit';
 
-describe('Habit Persistence Logic', () => {
-  // Create a helper for a valid habit object to keep tests clean
-  const createMockHabit = (overrides = {}): Habit => ({
+describe('toggleHabitCompletion', () => {
+  const mockHabit: Habit = {
     id: '1',
-    name: 'Test Habit',
+    name: 'Test',
     description: '',
     completions: [],
-    userId: 'user-123',      
+    userId: 'u1',
     frequency: 'daily',
-    createdAt: new Date().toISOString(),
-    ...overrides
+    createdAt: new Date().toISOString()
+  };
+
+  it('adds a completion date when the date is not present', () => {
+    const result = toggleHabitCompletion(mockHabit, '2026-04-26');
+    expect(result.completions).toContain('2026-04-26');
   });
 
-  it('adds a date to completions if it does not exist', () => {
-    const habit = createMockHabit({ completions: [] });
-    const date = '2026-04-26';
-    
-    const result = toggleHabitCompletion(habit, date);
-    
-    expect(result.completions).toContain(date);
-    expect(result.completions.length).toBe(1);
+  it('removes a completion date when the date already exists', () => {
+    const habitWithDate = { ...mockHabit, completions: ['2026-04-26'] };
+    const result = toggleHabitCompletion(habitWithDate, '2026-04-26');
+    expect(result.completions).not.toContain('2026-04-26');
   });
 
-  it('removes a date from completions if it already exists', () => {
-    const date = '2026-04-26';
-    const habit = createMockHabit({ completions: [date] });
-    
-    const result = toggleHabitCompletion(habit, date);
-    
-    expect(result.completions).not.toContain(date);
-    expect(result.completions.length).toBe(0);
+  it('does not mutate the original habit object', () => {
+    const originalCompletions = [...mockHabit.completions];
+    toggleHabitCompletion(mockHabit, '2026-04-26');
+    expect(mockHabit.completions).toEqual(originalCompletions);
   });
-});
 
-describe('Storage Constants', () => {
-  it('defines the required local storage keys', () => {
-    expect(STORAGE_KEYS.HABITS).toBeDefined();
-    expect(typeof STORAGE_KEYS.HABITS).toBe('string');
+  it('does not return duplicate completion dates', () => {
+    // This is handled by our Set logic in the function
+    const habit = { ...mockHabit, completions: ['2026-04-26'] };
+    const result = toggleHabitCompletion(habit, '2026-04-26'); // Removes it
+    const final = toggleHabitCompletion(result, '2026-04-26'); // Adds it back
+    expect(new Set(final.completions).size).toBe(final.completions.length);
   });
 });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthForm } from "@/components/auth/AuthForm"; // Your existing form component
+import { AuthForm } from "@/components/auth/AuthForm";
 import { STORAGE_KEYS } from "@/lib/constants";
 import { User, Session, AuthCredentials } from "@/types/auth";
 
@@ -14,9 +14,9 @@ export default function SignupPage() {
     const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS);
     const users: User[] = usersRaw ? JSON.parse(usersRaw) : [];
 
-    // REQUIREMENT: Duplicate email signup must be rejected [cite: 213]
+    // Duplicate email signup must be rejected
     if (users.find((u) => u.email === credentials.email)) {
-      setError("User already exists"); // Exact error message required [cite: 214]
+      setError("User already exists"); // Exact error message required
       return;
     }
 
@@ -27,7 +27,7 @@ export default function SignupPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // REQUIREMENT: Save user and session to local storage [cite: 55, 56]
+    // Save user and session to local storage
     const updatedUsers = [...users, newUser];
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
 

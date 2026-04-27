@@ -14,6 +14,9 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
     onSubmit(credentials);
   };
 
+  // Determine prefix based on mode for Contract Compliance
+  const idPrefix = mode === "login" ? "auth-login" : "auth-signup";
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -31,7 +34,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
-              data-testid="auth-login-email"
+              data-testid={`${idPrefix}-email`} // Becomes auth-login-email or auth-signup-email
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -43,7 +46,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              data-testid="auth-login-password"
+              data-testid={`${idPrefix}-password`} // Becomes auth-login-password or auth-signup-password
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -55,7 +58,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <button
             type="submit"
             className="auth-button"
-            data-testid="auth-login-submit"
+            data-testid={`${idPrefix}-submit`} // Becomes auth-login-submit or auth-signup-submit
           >
             {mode === "login" ? "Sign In" : "Sign Up"}
           </button>

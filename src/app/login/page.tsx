@@ -12,18 +12,18 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = (credentials: AuthCredentials) => {
-    // 1. Get users from the CORRECT key
+    // Get users from the CORRECT key
     const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS);
     const users: User[] = usersRaw ? JSON.parse(usersRaw) : [];
 
-    // 2. Find user
+    // Find user
     const user = users.find(
       (u) =>
         u.email === credentials.email && u.password === credentials.password,
     );
 
     if (user) {
-      // 3. Store Session as an OBJECT (Requirement 8.2)
+      // Store Session as an OBJECT
       const session: Session = { userId: user.id, email: user.email };
       localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
       router.push("/dashboard");
