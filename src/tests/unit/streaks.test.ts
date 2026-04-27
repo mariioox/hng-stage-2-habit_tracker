@@ -29,4 +29,9 @@ describe('calculateCurrentStreak', () => {
     const data = [today, '2026-04-24']; // Gap on the 25th
     expect(calculateCurrentStreak(data, today)).toBe(1);
   });
+  it('uses the system date if no date is provided', () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    // We expect 1 if we completed today (system time)
+    expect(calculateCurrentStreak([todayStr])).toBe(1);
+  });
 });
