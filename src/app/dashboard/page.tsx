@@ -20,9 +20,6 @@ export default function DashboardPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  // Track which habit is currently showing the confirm delete buttons
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(
     null,
   );
@@ -31,36 +28,33 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const sessionRaw = localStorage.getItem(STORAGE_KEYS.SESSION);
-    if (!sessionRaw) {
-      router.push("/login");
-      return;
-    }
-    const currentSession: Session = JSON.parse(sessionRaw);
-    setSession(currentSession);
 
-    const saved = localStorage.getItem(STORAGE_KEYS.HABITS);
-    if (saved) {
-      const allHabits: Habit[] = JSON.parse(saved);
-      const userHabits = allHabits.filter(
-        (h) => h.userId === currentSession.userId,
-      );
-      setHabits(userHabits);
-    }
-    setIsInitialLoad(false);
-  }, [router]);
+    if (sessionRaw) {
+      try {
+        const currentSession: Session = JSON.parse(sessionRaw);
+        setSession(currentSession);
 
-  if (isInitialLoad) return <div data-testid="loading">Loading...</div>;
+        const saved = localStorage.getItem(STORAGE_KEYS.HABITS);
+        if (saved) {
+          const allHabits: Habit[] = JSON.parse(saved);
+          const userHabits = allHabits.filter(
+            (h) => h.userId === currentSession.userId,
+          );
+          setHabits(userHabits);
+        }
+      } catch (e) {
+        console.error("Session sync error:", e);
+      }
+    }
+  }, []);
 
   const saveToLocal = (newHabits: Habit[]) => {
     setHabits(newHabits);
-
-    // Safety check: ensure we use the current session ID even if state is pending
     const userId = session?.userId;
     if (!userId) return;
 
     const saved = localStorage.getItem(STORAGE_KEYS.HABITS);
     const allHabits: Habit[] = saved ? JSON.parse(saved) : [];
-
     const otherUsersHabits = allHabits.filter((h) => h.userId !== userId);
 
     localStorage.setItem(
@@ -138,7 +132,6 @@ export default function DashboardPage() {
         </header>
 
         <main className="habit-grid">
-          {/* SECTION 10 CONTRACT: create-habit-button */}
           <div
             className="habit-card add-habit-card"
             data-testid="create-habit-button"
@@ -151,7 +144,6 @@ export default function DashboardPage() {
             <p>New Habit</p>
           </div>
 
-          {/* SECTION 10 CONTRACT: empty-state rendering logic */}
           {habits.length === 0 ? (
             <div data-testid="empty-state" className="empty-state-container">
               <p>No habits yet. Start by creating one!</p>

@@ -34,7 +34,8 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
-              data-testid={`${idPrefix}-email`} // Becomes auth-login-email or auth-signup-email
+              data-testid={`${idPrefix}-email`}
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -46,7 +47,8 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              data-testid={`${idPrefix}-password`} // Becomes auth-login-password or auth-signup-password
+              data-testid={`${idPrefix}-password`}
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -60,7 +62,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
             className="auth-button"
             data-testid={`${idPrefix}-submit`} // Becomes auth-login-submit or auth-signup-submit
           >
-            {mode === "login" ? "Sign In" : "Sign Up"}
+            {mode === "login" ? "Login" : "Sign Up"}
           </button>
         </form>
 

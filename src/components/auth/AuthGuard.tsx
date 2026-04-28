@@ -1,33 +1,40 @@
+// src/components/auth/AuthGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [authorized, setAuthorized] = useState(false);
+  const [status, setStatus] = useState<
+    "loading" | "authorized" | "unauthorized"
+  >("loading");
 
   useEffect(() => {
-    // 1. Tell the component we are now safely in the browser
-    setIsMounted(true);
+    console.log("AUTHGUARD: Starting check..."); // DEBUG LOG
 
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    // Check storage immediately
+    const sessionRaw = localStorage.getItem(STORAGE_KEYS.SESSION);
+    console.log("AUTHGUARD: Session found?", !!sessionRaw); // DEBUG LOG
 
-    if (!isLoggedIn) {
-      router.push("/login");
+    if (sessionRaw) {
+      setStatus("authorized");
     } else {
-      // 2. This is the "cascading" render, but it's necessary
-      // because we moved from "Server" state to "Client" state.
-      setAuthorized(true);
+      setStatus("unauthorized");
+      router.replace("/login");
     }
   }, [router]);
 
-  // If we aren't in the browser yet, show nothing
-  if (!isMounted) return null;
-
-  // If we are in the browser but not authorized, show nothing (while router redirects)
-  if (!authorized) return null;
+  // If you see "Loading..." but DON'T see the console logs above,
+  // your JavaScript is not executing at all while offline.
+  if (status === "loading") {
+    return (
+      <div data-testid="loading" style={{ padding: "5rem", color: "red" }}>
+        Loading UI (Checking Auth)...
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

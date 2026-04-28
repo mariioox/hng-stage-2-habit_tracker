@@ -1,26 +1,32 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+} from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import DashboardPage from "@/app/dashboard/page";
 import "@testing-library/jest-dom";
 
-// Mock AuthGuard to render children immediately without logic
+// 1. Force the Guard to stay out of the way
 vi.mock("@/components/auth/AuthGuard", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-const mockPush = vi.fn();
+// 2. Stable Router
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: mockPush,
+    push: vi.fn(),
   }),
 }));
 
 describe("dashboard actions", () => {
   beforeEach(() => {
-    localStorage.clear();
     vi.clearAllMocks();
+    localStorage.clear();
 
-    // This ensures the first render is the "Final" render, stopping the loop
+    // 3. SEED DATA - Use the exact keys from your STORAGE_KEYS constant
     const mockSession = { userId: "u1", email: "test@hng.tech" };
     const mockHabits = [
       {
@@ -39,13 +45,13 @@ describe("dashboard actions", () => {
   });
 
   afterEach(() => {
-    cleanup(); // Force clear JSDOM memory between tests
+    cleanup();
   });
 
   it("deletes a habit only after explicit confirmation", async () => {
     render(<DashboardPage />);
 
-    // Using findBy to wait for the useEffect/Loading state to clear
+    // Wait for loading to finish and card to appear
     const deleteBtn = await screen.findByTestId("habit-delete-drink-water");
     fireEvent.click(deleteBtn);
 
@@ -54,10 +60,12 @@ describe("dashboard actions", () => {
 
     fireEvent.click(confirmBtn);
 
-    expect(
-      screen.queryByTestId("habit-card-drink-water"),
-    ).not.toBeInTheDocument();
-    expect(screen.getByTestId("empty-state")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("habit-card-drink-water"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("empty-state")).toBeInTheDocument();
+    });
   });
 
   it("toggles completion and updates the streak display", async () => {
@@ -69,12 +77,15 @@ describe("dashboard actions", () => {
     const initialText = streakDisplay.textContent;
     fireEvent.click(toggleBtn);
 
-    expect(streakDisplay.textContent).not.toBe(initialText);
+    await waitFor(() => {
+      expect(streakDisplay.textContent).not.toBe(initialText);
+    });
   });
 
   it("persists session and habits after page reload", async () => {
     render(<DashboardPage />);
 
+    // Ensure the main container and seeded card are rendered
     expect(await screen.findByTestId("dashboard-page")).toBeInTheDocument();
     expect(screen.getByTestId("habit-card-drink-water")).toBeInTheDocument();
   });

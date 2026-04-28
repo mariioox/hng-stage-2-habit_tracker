@@ -25,11 +25,11 @@ export const HabitModal = ({
   const [habitDescription, setHabitDescription] = useState(initialDescription);
   const [error, setError] = useState<string | null>(null);
 
-  // Sync the input field when the modal opens for editing
   useEffect(() => {
     if (isOpen) {
       setHabitName(initialName);
       setHabitDescription(initialDescription);
+      setError(null);
     }
   }, [isOpen, initialName, initialDescription]);
 
@@ -65,25 +65,28 @@ export const HabitModal = ({
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>What&apos;s your new habit?</label>
+            {/* Playwright looks for /habit name/i */}
+            <label htmlFor="habit-name-input">Habit Name</label>
             <input
+              id="habit-name-input"
               value={habitName}
               onChange={(e) => {
                 setHabitName(e.target.value);
                 if (error) setError(null);
               }}
               data-testid="habit-form-name"
-              placeholder="Crocheting"
+              placeholder="e.g. Exercise"
             />
           </div>
 
           <div className="form-group">
-            <label>Description (Optional)</label>
+            <label htmlFor="habit-desc-input">Description (Optional)</label>
             <input
+              id="habit-desc-input"
               value={habitDescription}
               onChange={(e) => setHabitDescription(e.target.value)}
               data-testid="habit-form-description"
-              placeholder="e.g. I want to crochet for 30 minutes every day to improve my skills."
+              placeholder="Add details..."
             />
           </div>
 
@@ -101,7 +104,8 @@ export const HabitModal = ({
               type="submit"
               className="btn-primary"
             >
-              {mode === "create" ? "Create" : "Save Changes"}
+              {/* Playwright looks for /save/i */}
+              Save
             </button>
           </div>
         </form>
