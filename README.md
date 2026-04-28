@@ -1,79 +1,88 @@
-# Habit Tracker PWA - Stage 3 Implementation
+# Habit Tracker PWA
 
-## 📌 Project Overview
+A mobile-first, offline-capable Progressive Web App built for tracking daily habits with deterministic streak calculation and local persistence.
 
-A high-performance, mobile-first Habit Tracker Progressive Web App (PWA) built with **Next.js**. This project was developed as a technical translation task focusing on deterministic logic, local persistence, and comprehensive test coverage (100% logic coverage achieved).
+## 1. Project Overview
 
-## 🚀 Setup & Installation
+This application is a technical implementation of the Stage 3 Habit Tracker specification. It allows users to manage habits, track streaks, and maintain data across sessions using local-only persistence. The project emphasizes testability, accessibility, and PWA reliability.
 
-### 1. Clone the Repository
+## 2. Setup Instructions
 
-```bash
-git clone <your-repo-url>
-cd stage_3_habit_tracker
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/mariioox/hng-stage-3-habit_tracker
+   cd hng-stage_3_habit_tracker
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+3. **Install Playwright browsers:**
+   ```bash
+   npx playwright install
+   ```
 
-### 2. Install Dependencies
+## 3. Run Instructions
 
-```bash
-npm install
-```
+- **Development Mode:**
 
-### 3. Environment Configuration
+  ```bash
+  npm run dev
+  ```
 
-_Note: This project uses localStorage for persistence as per Section 3 requirements. No external database or `.env` file is required for core functionality._
+  Open [http://localhost:3000] to view the app.
 
-### 4. Run Development Server
+- **Production Build:**
+  ```bash
+  npm run build
+  npm run start
+  ```
 
-```bash
-npm run dev
-```
+## 4. Test Instructions
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+The project includes a full test suite as required by the specification.
 
----
+- **Run all tests (Unit, Integration, E2E):**
+  ```bash
+  npm test
+  ```
+- **Run Unit Tests with Coverage:**
+  ```bash
+  npm run test:unit
+  ```
+- **Run E2E Tests (Playwright):**
+  ```bash
+  npm run test:e2e
+  ```
 
-## 🧪 Testing Suite
+## 5. Local Persistence Structure
 
-This project implements a three-tier testing strategy as mandated by the Stage 3 Specification.
+Data is stored deterministically in the browser's `localStorage` using the following key schema:
 
-| Command                    | Type            | Description                                                 |
-| :------------------------- | :-------------- | :---------------------------------------------------------- |
-| `npm run test:unit`        | **Unit**        | Verifies logic in `src/lib` (Streaks, Slugs, Validators).   |
-| `npm run test:integration` | **Integration** | Verifies `HabitModal` behavior using React Testing Library. |
-| `npm run test:e2e`         | **E2E**         | Runs Playwright flows (Login, Habit Creation, Persistence). |
-| `npm test`                 | **Full Audit**  | Runs all the above commands in sequence.                    |
+- `habit-tracker-users`: An array of user objects containing `id`, `email`, and hashed `password`.
+- `habit-tracker-session`: The current active user session object (`userId`, `email`).
+- `habit-tracker-habits`: An array of all habits. Each habit includes a `userId` for ownership and a `completions` array (ISO date strings) for streak calculation.
 
----
+## 6. PWA Implementation
 
-## 🛠 Technical Implementation Details
+- **Service Worker:** Implemented in `public/sw.js` using a "Network-First, falling back to Cache" strategy for reliability.
+- **App Shell:** Key routes (`/`, `/login`, `/dashboard`) are cached during the SW `install` phase to ensure the app loads offline.
+- **Manifest:** A `manifest.json` defines brand colors, icons (`192x192`, `512x512`), and standalone display mode for a native feel.
 
-### Local Persistence Structure (Section 7)
+## 7. Trade-offs and Limitations
 
-Data is persisted using the browser's `localStorage` API.
+- **Local-Only:** Since no remote database is used, data is scoped to a single browser and device. Clearing site data will wipe all user habits.
+- **Security:** `localStorage` is used for sessions to satisfy the "No External Auth" requirement; in a production environment with a backend, HttpOnly cookies would be preferred.
 
-- **Key:** `habit-tracker-habits`
-- **Format:** An array of `Habit` objects.
-- **Deterministic Logic:** Each habit tracks completions via an array of ISO-8601 strings (`YYYY-MM-DD`). This allows for time-zone agnostic streak calculations.
+## 8. Test Mapping (Requirement 16.3 & 19)
 
-### PWA Support (Section 8)
+The following table maps the required test files to the behaviors they verify:
 
-- **Manifest:** `public/manifest.json` defines the standalone display mode, theme colors, and icons for OS-level installation.
-- **Service Worker:** A custom service worker (`public/sw.js`) implements a "Cache First" strategy for the app shell, ensuring the UI loads instantly even when offline.
-
-### Test-to-Behavior Mapping (Section 19)
-
-- `tests/unit/streaks.test.ts`: Validates the **Section 11.1** contract for consecutive day calculations and gap detection.
-- `tests/unit/validators.test.ts`: Ensures input sanitization and length constraints follow **Section 11.2**.
-- `tests/unit/slug.test.ts`: Confirms that habit names are safely converted to IDs for testing selectors (**Section 10**).
-- `tests/integration/habit-form.test.tsx`: Exercises the UI to ensure error states and success callbacks trigger correctly (**Section 16.2**).
-
-### ⚖️ Trade-offs & Limitations
-
-- **Storage Strategy:** By using `localStorage`, we achieve the required deterministic behavior without network latency, but data is bound to a single browser/device.
-- **State Management:** React `useState` and `useEffect` were used over complex stores (like Redux) to keep the "Brain" of the app in `src/lib` easily testable and decoupled from the UI.
-
-```
-
----
-```
+| Test File             | Verified Behavior                                                                                          |
+| :-------------------- | :--------------------------------------------------------------------------------------------------------- |
+| `app.spec.ts`         | **E2E Flow:** Splash screen timing, Auth redirection, Habit CRUD, Persistence, and Offline PWA loading.    |
+| `auth-flow.test.tsx`  | **Integration:** Validates form handling, error message display, and session creation logic.               |
+| `habit-form.test.tsx` | **Integration:** Ensures habit creation/editing modals correctly update the local state.                   |
+| `streaks.test.ts`     | **Unit:** Verifies deterministic streak math (consecutive days, resets on gaps, and future date handling). |
+| `slug.test.ts`        | **Unit:** Confirms URL-safe, lowercase, and symbol-free slug generation for habit IDs.                     |
+| `validators.test.ts`  | **Unit:** Validates habit name constraints (length, whitespace, and required fields).                      |

@@ -30,8 +30,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // your JavaScript is not executing at all while offline.
   if (status === "loading") {
     return (
-      <div data-testid="loading" style={{ padding: "5rem", color: "red" }}>
-        Loading UI (Checking Auth)...
+      <div
+        data-testid="loading"
+        style={{
+          textAlign: "center",
+          color: "#cf423a",
+          fontSize: "1.6em",
+          marginTop: "4em",
+        }}
+      >
+        Loading UI... ⏳
       </div>
     );
   }
