@@ -1,4 +1,3 @@
-/* Calculates the current streak based on consecutive calendar days. */
 export function calculateCurrentStreak(completions: string[], today?: string): number {
   const todayStr = today || new Date().toISOString().split('T')[0];
 

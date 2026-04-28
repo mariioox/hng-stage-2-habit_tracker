@@ -65,7 +65,6 @@ export const HabitModal = ({
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            {/* Playwright looks for /habit name/i */}
             <label htmlFor="habit-name-input">Habit Name</label>
             <input
               id="habit-name-input"
@@ -104,7 +103,6 @@ export const HabitModal = ({
               type="submit"
               className="btn-primary"
             >
-              {/* Playwright looks for /save/i */}
               Save
             </button>
           </div>

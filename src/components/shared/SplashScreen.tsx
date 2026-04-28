@@ -1,4 +1,3 @@
-// src/components/shared/SplashScreen.tsx
 "use client";
 
 import React from "react";
@@ -15,7 +14,7 @@ export default function SplashScreen() {
         height: "100vh",
         width: "100vw",
         backgroundColor: "#ffffff",
-        color: "#cf423a", // Using your brand red
+        color: "#cf423a",
       }}
     >
       <h1 style={{ fontSize: "2.5rem", fontWeight: "bold" }}>Habit Tracker</h1>

@@ -14,7 +14,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
     onSubmit(credentials);
   };
 
-  // Determine prefix based on mode for Contract Compliance
+  // Determine prefix based on mode
   const idPrefix = mode === "login" ? "auth-login" : "auth-signup";
 
   return (
@@ -60,7 +60,7 @@ export const AuthForm = ({ mode, onSubmit, error }: AuthFormProps) => {
           <button
             type="submit"
             className="auth-button"
-            data-testid={`${idPrefix}-submit`} // Becomes auth-login-submit or auth-signup-submit
+            data-testid={`${idPrefix}-submit`}
           >
             {mode === "login" ? "Login" : "Sign Up"}
           </button>

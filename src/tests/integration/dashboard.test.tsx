@@ -9,12 +9,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import DashboardPage from "@/app/dashboard/page";
 import "@testing-library/jest-dom";
 
-// 1. Force the Guard to stay out of the way
 vi.mock("@/components/auth/AuthGuard", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// 2. Stable Router
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -26,7 +24,6 @@ describe("dashboard actions", () => {
     vi.clearAllMocks();
     localStorage.clear();
 
-    // 3. SEED DATA - Use the exact keys from your STORAGE_KEYS constant
     const mockSession = { userId: "u1", email: "test@hng.tech" };
     const mockHabits = [
       {
@@ -85,7 +82,7 @@ describe("dashboard actions", () => {
   it("persists session and habits after page reload", async () => {
     render(<DashboardPage />);
 
-    // Ensure the main container and seeded card are rendered
+    // Ensure the main container and card are rendered
     expect(await screen.findByTestId("dashboard-page")).toBeInTheDocument();
     expect(screen.getByTestId("habit-card-drink-water")).toBeInTheDocument();
   });

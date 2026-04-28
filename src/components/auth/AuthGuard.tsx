@@ -1,4 +1,3 @@
-// src/components/auth/AuthGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,8 +25,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [router]);
 
-  // If you see "Loading..." but DON'T see the console logs above,
-  // your JavaScript is not executing at all while offline.
   if (status === "loading") {
     return (
       <div

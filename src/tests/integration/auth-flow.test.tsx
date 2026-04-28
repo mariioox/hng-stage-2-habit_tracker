@@ -17,7 +17,6 @@ describe("auth flow", () => {
   });
 
   it("shows validation errors for invalid login credentials", async () => {
-    // In your component, 'required' handles basic validation.
     // To test the error message display:
     render(
       <AuthForm
@@ -56,7 +55,7 @@ describe("auth flow", () => {
       JSON.stringify({ userId: "1" }),
     );
 
-    // Simulate the logout behavior required by Section 16.3
+    // Simulate the logout behavior
     const performLogout = () => {
       localStorage.removeItem("habit-tracker-session");
       mockPush("/login");

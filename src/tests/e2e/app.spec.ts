@@ -105,26 +105,24 @@ test.describe('Habit Tracker app', () => {
   });
 
   test('loads the cached app shell when offline after the app has been loaded once', async ({ context, page }) => {
-    // 1. Visit the page while online
+    // Visit the page while online
     await page.goto('/login');
     
-    // 2. Wait for the Service Worker to be active and the cache to be populated.
-    // In a real PWA audit, this "priming" is expected.
     await page.waitForFunction(() => {
       return navigator.serviceWorker.controller !== null;
     });
     
-    // Give it an extra second to ensure the cache.put operations finished
+    // Delay to ensure the cache.put operations finished
     await page.waitForTimeout(2000);
 
-    // 3. Go offline
+    // Go offline
     await context.setOffline(true);
     
-    // 4. Reload - should now be served by SW
+    // Reload - should now be served by SW
     await page.reload();
 
-    // 5. Check if the UI is still there
-    // Ensure this matches your heading text exactly (e.g., "Login to Habit Tracker")
+    // Check if the UI is still there
+    // Ensure this matches your heading text exactly
     await expect(page.getByRole('heading', { name: /login/i })).toBeVisible();
   });
 });

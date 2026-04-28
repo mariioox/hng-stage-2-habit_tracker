@@ -4,5 +4,5 @@ export function getHabitSlug(name: string): string {
     .trim()
     .replace(/\s+/g, '-')           // Replace spaces with single hyphen
     .replace(/[^a-z0-9-]/g, '')    // Remove non-alphanumeric except hyphens
-    .replace(/^-+|-+$/g, '');      // NEW: Remove hyphens from start or end
+    .replace(/^-+|-+$/g, '');      // Remove hyphens from start or end
 }

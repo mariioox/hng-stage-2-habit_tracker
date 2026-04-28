@@ -10,7 +10,7 @@ export default function SWRegistration() {
       const register = async () => {
         try {
           const reg = await navigator.serviceWorker.register("/sw.js", {
-            scope: "/", // Explicitly set the scope to the root
+            scope: "/",
           });
           console.log("Service Worker registered with scope:", reg.scope);
         } catch (error) {

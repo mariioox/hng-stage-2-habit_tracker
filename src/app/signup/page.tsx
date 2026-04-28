@@ -16,7 +16,7 @@ export default function SignupPage() {
 
     // Duplicate email signup must be rejected
     if (users.find((u) => u.email === credentials.email)) {
-      setError("User already exists"); // Exact error message required
+      setError("User already exists");
       return;
     }
 

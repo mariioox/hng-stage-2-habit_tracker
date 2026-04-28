@@ -30,7 +30,7 @@ export default function RootPage() {
 
       // Default to login if no session
       router.replace("/login");
-    }, 1500); // 1.5s delay satisfies Section 7.2
+    }, 1500);
 
     return () => clearTimeout(splashTimer);
   }, [router]);
